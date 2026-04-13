@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Shorts Remover
 // @namespace    http://tampermonkey.net/
-// @version      2.0.0
+// @version      2.0.1
 // @description  Removes YouTube Shorts from home, feeds, watch page, channels, search, and sidebar. Includes settings panel.
 // @author       Arnoldas M.
 // @license      MIT
@@ -259,13 +259,17 @@
 	}
 
 	function removeSidebarShorts() {
-		if (!config.removeSidebar) return;
+        if (!config.removeSidebar) return;
 
-		document.querySelectorAll(SELECTORS.sidebarShorts.join(',')).forEach(el => {
-			const removable = el.closest('ytd-guide-entry-renderer, tp-yt-paper-item, a, div');
-			if (removable) safeHide(removable);
-		});
-	}
+        document.querySelectorAll('ytd-guide-entry-renderer, ytd-mini-guide-entry-renderer').forEach(entry => {
+            const text = entry.textContent?.trim().toLowerCase() || '';
+            const link = entry.querySelector('a[href="/shorts"], a[href^="/shorts"]');
+
+            if (text === 'shorts' || link) {
+                safeHide(entry);
+            }
+        });
+    }
 
 	function removeChannelShortsTab() {
 		if (!config.removeFromChannel) return;
